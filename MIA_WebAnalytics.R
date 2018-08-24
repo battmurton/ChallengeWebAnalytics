@@ -368,3 +368,24 @@ ggraph(bigram_graph, layout = 'fr')+
     geom_node_point(color = 'lightblue', size = 5)+
     geom_node_text(aes(label = name), vjust = 1, hjust = 1)+
     theme_void()
+
+
+#################### Proposal phase impact ##########################
+MIA_propose <- read.csv('proposal_phase_report_20180803_MIA.csv')
+names(MIA_propose)
+
+
+# Create impact field (combination of views, applause, comments)
+MIA_propose$Views_Z <- (MIA_propose$Views...Total - mean(MIA_propose$Views...Total))/ sd(MIA_propose$Views...Total)
+MIA_propose$CommentsZ <- (MIA_propose$Comments...Total.excluding.challenge.team - mean(MIA_propose$Comments...Total.excluding.challenge.team)) / sd(MIA_propose$Comments...Total.excluding.challenge.team)
+MIA_propose$ApplauseZ <- (MIA_propose$Applause...Total.excluding.challenge.team - mean(MIA_propose$Applause...Total.excluding.challenge.team)) / sd(MIA_propose$Applause...Total.excluding.challenge.team)
+
+MIA_propose$impact <- MIA_propose$Views_Z + MIA_propose$CommentsZ + MIA_propose$ApplauseZ
+summary(MIA_propose$impact)
+
+# sort by impact
+MIA_propose %>% 
+    group_by(ID) %>% 
+    summarise(impact = impact) %>% 
+    arrange(desc(impact))
+print(MIA_propose[MIA_propose$ID==465,]$Title)

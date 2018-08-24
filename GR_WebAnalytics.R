@@ -266,3 +266,24 @@ dim(gr.fcm)
 # network diagram
 size <- log(colSums(dfm_select(gr.fcm,feat)))
 textplot_network(gr.fcm, min_freq = 0.4,omit_isolated = T,vertex_size = size / max(size) * 3)
+
+
+################### Proposal phase impact ######################################################
+GR_propose <- read.csv('proposal_phase_report_20180803_GR.csv')
+names(GR_propose)
+
+# Create impact field (combination of views, applause, comments)
+GR_propose$Views_Z <- (GR_propose$Views...Total - mean(GR_propose$Views...Total))/ sd(GR_propose$Views...Total)
+GR_propose$CommentsZ <- (GR_propose$Comments...Total.excluding.challenge.team - mean(GR_propose$Comments...Total.excluding.challenge.team)) / sd(GR_propose$Comments...Total.excluding.challenge.team)
+# all 0 applause, cause divide by 0 error because of SD = 0. 
+GR_propose$ApplauseZ <- (GR_propose$Applause...Total.excluding.challenge.team - mean(GR_propose$Applause...Total.excluding.challenge.team)) / 1
+
+GR_propose$impact <- GR_propose$Views_Z + GR_propose$CommentsZ + GR_propose$ApplauseZ
+summary(GR_propose$impact)
+
+# sort by impact
+GR_propose %>% 
+    group_by(ID) %>% 
+    summarise(impact = impact) %>% 
+    arrange(desc(impact))
+print(GR_propose[GR_propose$ID==529,]$Title)

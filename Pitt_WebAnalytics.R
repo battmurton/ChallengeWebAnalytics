@@ -254,3 +254,25 @@ dim(Pitt.fcm)
 # network diagram
 size <- log(colSums(dfm_select(Pitt.fcm,feat)))
 textplot_network(Pitt.fcm, min_freq = 0.4,omit_isolated = T,vertex_size = size / max(size) * 3)
+
+
+
+
+######################### Propose Phase Impact posts ###################
+PITT_propose <- read.csv('proposal_phase_report_20180803_PGH.csv')
+names(PITT_propose)
+
+# Create impact field (combination of views, applause, comments)
+PITT_propose$Views_Z <- (PITT_propose$Views...Total - mean(PITT_propose$Views...Total))/ sd(PITT_propose$Views...Total)
+PITT_propose$CommentsZ <- (PITT_propose$Comments...Total.excluding.challenge.team - mean(PITT_propose$Comments...Total.excluding.challenge.team)) / sd(PITT_propose$Comments...Total.excluding.challenge.team)
+PITT_propose$ApplauseZ <- (PITT_propose$Applause...Total.excluding.challenge.team - mean(PITT_propose$Applause...Total.excluding.challenge.team)) / sd(PITT_propose$Applause...Total.excluding.challenge.team)
+
+PITT_propose$impact <- PITT_propose$Views_Z + PITT_propose$CommentsZ + PITT_propose$ApplauseZ
+summary(PITT_propose$impact)
+
+# sort by impact
+PITT_propose %>% 
+    group_by(ID) %>% 
+    summarise(impact = impact) %>% 
+    arrange(desc(impact))
+print(PITT_propose[PITT_propose$ID==479,]$Title)
